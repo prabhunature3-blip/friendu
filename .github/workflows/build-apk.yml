@@ -24,14 +24,25 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Initialize Project & Install Capacitor
+      - name: Setup Web Directory & Capacitor Config
+        run: |
+          mkdir -p www
+          find . -maxdepth 1 -not -name 'www' -not -name '.git' -not -name '.github' -exec cp -r {} www/ \; || true
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.friendu.app",
+            "appName": "friendU",
+            "webDir": "www"
+          }
+          EOF
+
+      - name: Install Capacitor & Add Android
         run: |
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init friendU com.friendu.app --web-dir .
           npx cap add android
 
-      - name: Sync Web Code to Android Project
+      - name: Copy Assets
         run: |
           npx cap copy android
 
