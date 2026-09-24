@@ -24,33 +24,34 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Web Directory & Capacitor Config
+      - name: Create Web App Structure
         run: |
-          mkdir -p www
-          find . -maxdepth 1 -not -name 'www' -not -name '.git' -not -name '.github' -exec cp -r {} www/ \; || true
-          cat << 'EOF' > capacitor.config.json
-          {
-            "appId": "com.friendu.app",
-            "appName": "friendU",
-            "webDir": "www"
-          }
+          mkdir -p public_html
+          find . -maxdepth 1 ! -name 'public_html' ! -name '.git' ! -name '.github' -exec cp -rt public_html/ {} +
+          npm init -y
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
+          cat << 'EOF' > capacitor.config.ts
+          import type { CapacitorConfig } from '@capacitor/cli';
+
+          const config: CapacitorConfig = {
+            appId: 'com.friendu.app',
+            appName: 'friendU',
+            webDir: 'public_html'
+          };
+
+          export default config;
           EOF
 
-      - name: Install Capacitor & Add Android
+      - name: Add Android Platform & Sync
         run: |
-          npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap add android
-
-      - name: Copy Assets
-        run: |
-          npx cap copy android
+          npx cap sync android
 
       - name: Build Android Debug APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
