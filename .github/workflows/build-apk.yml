@@ -24,22 +24,20 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Create Web App Structure
+      - name: Prepare Web Directory & Config
         run: |
-          mkdir -p public_html
-          find . -maxdepth 1 ! -name 'public_html' ! -name '.git' ! -name '.github' -exec cp -rt public_html/ {} +
+          mkdir -p /tmp/web_assets
+          cp -r * /tmp/web_assets/ 2>/dev/null || true
+          mkdir -p dist
+          cp -r /tmp/web_assets/* dist/
           npm init -y
-          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
-          cat << 'EOF' > capacitor.config.ts
-          import type { CapacitorConfig } from '@capacitor/cli';
-
-          const config: CapacitorConfig = {
-            appId: 'com.friendu.app',
-            appName: 'friendU',
-            webDir: 'public_html'
-          };
-
-          export default config;
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.friendu.app",
+            "appName": "friendU",
+            "webDir": "dist"
+          }
           EOF
 
       - name: Add Android Platform & Sync
