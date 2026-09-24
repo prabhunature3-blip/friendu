@@ -24,11 +24,16 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Prepare Web Assets Folder
+        run: |
+          mkdir -p www
+          find . -maxdepth 1 -not -name 'www' -not -name '.git' -not -name '.github' -exec cp -r {} www/ \;
+
       - name: Initialize Project & Install Capacitor
         run: |
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init friendU com.friendu.app --web-dir .
+          npx cap init friendU com.friendu.app --web-dir www
           npx cap add android
 
       - name: Sync Web Code to Android Project
