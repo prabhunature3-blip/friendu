@@ -1,130 +1,611 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>friendU - AI Live Companion</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>friendU - AI Humans</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body {
-      background: radial-gradient(circle at center, #111827 0%, #030712 100%);
-      color: #f3f4f6;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 24px 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #0f1117;
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
     header {
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #161922;
+      border-bottom: 1px solid #232734;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+    }
+    .btn-create {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .container {
+      padding: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: #1a1e2b;
+      border: 1px solid #2a3042;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .card:active {
+      transform: scale(0.97);
+      border-color: #38bdf8;
+    }
+    .avatar-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #242b3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 12px;
+      border: 2px solid #38bdf8;
+    }
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #f1f5f9;
+    }
+    .card p {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.3;
+    }
+    .edit-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #94a3b8;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    /* Modal / Form */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .sheet {
+      background: #161922;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-top: 1px solid #2b3245;
+    }
+    .sheet h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #f8fafc;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2a3042;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: #38bdf8;
+    }
+    .sheet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-save {
+      flex: 1;
+      background: #38bdf8;
+      color: #000;
+      font-weight: 700;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-cancel {
+      flex: 1;
+      background: #242b3d;
+      color: #cbd5e1;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-delete {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* Live Voice View */
+    .voice-view {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #090a0f;
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 20px;
+    }
+    .voice-view.active {
+      display: flex;
+    }
+    .top-bar {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 8px;
     }
-    .brand { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: #60a5fa; }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .persona-meta {
+      text-align: left;
+    }
+    .persona-meta h2 {
+      font-size: 18px;
+    }
+    .persona-meta span {
       font-size: 12px;
-      background: rgba(255,255,255,0.06);
-      padding: 6px 12px;
-      border-radius: 9999px;
-      border: 1px solid rgba(255,255,255,0.1);
+      color: #38bdf8;
     }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
-
-    /* Avatar Core */
-    .avatar-wrapper {
-      position: relative;
-      width: 240px;
-      height: 240px;
+    .btn-close-voice {
+      background: #242b3d;
+      border: none;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .orb-container {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
     }
     .orb {
       width: 150px;
       height: 150px;
       border-radius: 50%;
-      background: radial-gradient(circle, #38bdf8 10%, #6366f1 70%, transparent 100%);
-      filter: blur(12px);
-      animation: breathe 3.5s ease-in-out infinite alternate;
-      box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
+      background: radial-gradient(circle, #38bdf8, #6366f1 70%);
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+      animation: pulse 2.5s infinite ease-in-out;
     }
     .orb.talking {
-      animation: pulse 0.4s ease-in-out infinite alternate;
-      background: radial-gradient(circle, #f43f5e 10%, #8b5cf6 70%, transparent 100%);
-      box-shadow: 0 0 80px rgba(244, 63, 94, 0.6);
-    }
-    @keyframes breathe {
-      0% { transform: scale(0.9); opacity: 0.8; }
-      100% { transform: scale(1.15); opacity: 1; }
+      animation: ripple 0.8s infinite alternate ease-in-out;
+      box-shadow: 0 0 70px rgba(99, 102, 241, 0.8);
     }
     @keyframes pulse {
-      0% { transform: scale(1.0); }
-      100% { transform: scale(1.35); }
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.08); opacity: 1; }
     }
-
-    .status-text {
-      font-size: 15px;
-      color: #9ca3af;
-      margin-top: 16px;
+    @keyframes ripple {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.22); }
+    }
+    .transcript-box {
+      width: 100%;
+      max-width: 480px;
+      min-height: 70px;
+      max-height: 120px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #cbd5e1;
       text-align: center;
-      min-height: 24px;
     }
-
-    /* Controls */
-    .controls {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .btn {
-      width: 60px;
-      height: 60px;
+    .mic-btn {
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      font-size: 22px;
+      background: #38bdf8;
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 26px;
       cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
     }
-    .btn.active {
+    .mic-btn.recording {
       background: #ef4444;
-      border-color: #f87171;
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+      box-shadow: 0 4px 25px rgba(239, 68, 68, 0.5);
     }
   </style>
 </head>
 <body>
+
+  <!-- Top Navigation -->
   <header>
-    <div class="brand">friendU</div>
-    <div class="badge"><span class="dot"></span> Live Engine</div>
+    <h1>friendU</h1>
+    <button class="btn-create" onclick="openModal()">+ Create AI Human</button>
   </header>
 
-  <main>
-    <div class="avatar-wrapper">
-      <div class="orb" id="visualOrb"></div>
-    </div>
-    <div class="status-text" id="statusLabel">Listening for you...</div>
-  </main>
-
-  <div class="controls">
-    <button class="btn" id="micBtn" title="Microphone">🎙️</button>
-    <button class="btn" id="camBtn" title="Vision Camera">📷</button>
+  <!-- Main Personas List -->
+  <div class="container">
+    <div class="grid" id="personaGrid"></div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Create / Edit Sheet Modal -->
+  <div class="modal" id="personaModal">
+    <div class="sheet">
+      <h2 id="modalTitle">Create AI Human</h2>
+      <input type="hidden" id="editId">
+      
+      <div class="field">
+        <label>Name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Vikram / Maya">
+      </div>
+
+      <div class="field">
+        <label>Role</label>
+        <input type="text" id="roleInput" placeholder="e.g. Best Friend, Tech Mentor, Tamil Tutor">
+      </div>
+
+      <div class="field">
+        <label>Avatar Emoji / Icon</label>
+        <input type="text" id="avatarInput" value="🤖" placeholder="Paste an emoji like 👩, 👨, ⚡">
+      </div>
+
+      <div class="field">
+        <label>Voice Type</label>
+        <select id="voiceInput">
+          <option value="friendly">Warm & Friendly</option>
+          <option value="calm">Calm & Serious</option>
+          <option value="energetic">Energetic & Fast</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Persona Instruction (How should they talk?)</label>
+        <textarea id="promptInput" rows="3" placeholder="Speak in friendly Tanglish, keep answers brief and natural like a real peer."></textarea>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn-delete" id="btnDelete" onclick="deletePersona()">Delete</button>
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button type="button" class="btn-save" onclick="savePersona()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Room Screen -->
+  <div class="voice-view" id="voiceView">
+    <div class="top-bar">
+      <div class="persona-meta">
+        <h2 id="roomPersonaName">Persona</h2>
+        <span id="roomPersonaRole">Role</span>
+      </div>
+      <button class="btn-close-voice" onclick="exitVoiceRoom()">Close</button>
+    </div>
+
+    <div class="orb-container">
+      <div class="orb" id="orb"></div>
+    </div>
+
+    <div class="transcript-box" id="transcriptBox">
+      Tap the mic below and start talking...
+    </div>
+
+    <button class="mic-btn" id="micBtn" onclick="toggleSpeechRecognition()">🎤</button>
+  </div>
+
+  <script>
+    // Inga unga Google Auth Key integrate panniyachu:
+    const AUTH_KEY = "AQ.Ab8RN6JrG3kxKvRjMeEEpHzEh5K1-m6sFhsgMN052DBeFI7xeA";
+
+    const defaultPersonas = [
+      {
+        id: "1",
+        name: "Vikram",
+        role: "Best Friend",
+        avatar: "😎",
+        voice: "friendly",
+        prompt: "You are Vikram, a close best friend. Talk casually in lively Tanglish. Answer warmly and concisely like a buddy on phone call."
+      },
+      {
+        id: "2",
+        name: "Maya",
+        role: "Mindset Guide",
+        avatar: "🌸",
+        voice: "calm",
+        prompt: "You are Maya, a gentle, wise conversational mentor. Speak peacefully in warm Tamil and English mix, giving calm advice."
+      }
+    ];
+
+    let personas = JSON.parse(localStorage.getItem('friendu_personas')) || defaultPersonas;
+    let activePersona = null;
+    let recognition = null;
+    let isListening = false;
+
+    function saveToStorage() {
+      localStorage.setItem('friendu_personas', JSON.stringify(personas));
+      renderPersonas();
+    }
+
+    function renderPersonas() {
+      const grid = document.getElementById('personaGrid');
+      grid.innerHTML = '';
+
+      personas.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <button class="edit-btn" onclick="openModal('${p.id}', event)">Edit</button>
+          <div class="avatar-icon">${p.avatar || '🤖'}</div>
+          <h3>${p.name}</h3>
+          <p>${p.role}</p>
+        `;
+        card.onclick = (e) => {
+          if (e.target.classList.contains('edit-btn')) return;
+          enterVoiceRoom(p);
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function openModal(id = null, event = null) {
+      if (event) event.stopPropagation();
+      const modal = document.getElementById('personaModal');
+      const deleteBtn = document.getElementById('btnDelete');
+      modal.classList.add('active');
+
+      if (id) {
+        const p = personas.find(x => x.id === id);
+        document.getElementById('modalTitle').innerText = "Edit AI Human";
+        document.getElementById('editId').value = p.id;
+        document.getElementById('nameInput').value = p.name;
+        document.getElementById('roleInput').value = p.role;
+        document.getElementById('avatarInput').value = p.avatar;
+        document.getElementById('voiceInput').value = p.voice;
+        document.getElementById('promptInput').value = p.prompt;
+        deleteBtn.style.display = 'block';
+      } else {
+        document.getElementById('modalTitle').innerText = "Create AI Human";
+        document.getElementById('editId').value = '';
+        document.getElementById('nameInput').value = '';
+        document.getElementById('roleInput').value = '';
+        document.getElementById('avatarInput').value = '🤖';
+        document.getElementById('voiceInput').value = 'friendly';
+        document.getElementById('promptInput').value = '';
+        deleteBtn.style.display = 'none';
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('personaModal').classList.remove('active');
+    }
+
+    function savePersona() {
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('nameInput').value.trim();
+      const role = document.getElementById('roleInput').value.trim();
+      const avatar = document.getElementById('avatarInput').value.trim() || '🤖';
+      const voice = document.getElementById('voiceInput').value;
+      const prompt = document.getElementById('promptInput').value.trim();
+
+      if (!name) return alert("Name enters pannunga bro!");
+
+      if (id) {
+        const index = personas.findIndex(x => x.id === id);
+        if (index > -1) {
+          personas[index] = { id, name, role, avatar, voice, prompt };
+        }
+      } else {
+        personas.push({
+          id: Date.now().toString(),
+          name,
+          role,
+          avatar,
+          voice,
+          prompt
+        });
+      }
+      saveToStorage();
+      closeModal();
+    }
+
+    function deletePersona() {
+      const id = document.getElementById('editId').value;
+      if (!id) return;
+      personas = personas.filter(x => x.id !== id);
+      saveToStorage();
+      closeModal();
+    }
+
+    // Voice Room Logic
+    function enterVoiceRoom(persona) {
+      activePersona = persona;
+      document.getElementById('roomPersonaName').innerText = persona.name;
+      document.getElementById('roomPersonaRole').innerText = persona.role;
+      document.getElementById('transcriptBox').innerText = `Connected with ${persona.name}. Tap mic to talk.`;
+      document.getElementById('voiceView').classList.add('active');
+    }
+
+    function exitVoiceRoom() {
+      if (recognition && isListening) {
+        recognition.stop();
+      }
+      window.speechSynthesis.cancel();
+      document.getElementById('voiceView').classList.remove('active');
+      activePersona = null;
+    }
+
+    // Mic & Gemini API Response
+    function toggleSpeechRecognition() {
+      const micBtn = document.getElementById('micBtn');
+      const transcriptBox = document.getElementById('transcriptBox');
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Speech Recognition is not supported in this WebView. Enter text or check permissions.");
+        return;
+      }
+
+      if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-IN';
+
+        recognition.onstart = () => {
+          isListening = true;
+          micBtn.classList.add('recording');
+          transcriptBox.innerText = "Listening...";
+        };
+
+        recognition.onresult = async (event) => {
+          const userSpeech = event.results[0][0].transcript;
+          transcriptBox.innerText = `You: "${userSpeech}"`;
+          await askGemini(userSpeech);
+        };
+
+        recognition.onerror = (e) => {
+          transcriptBox.innerText = "Mic error: " + e.error;
+          isListening = false;
+          micBtn.classList.remove('recording');
+        };
+
+        recognition.onend = () => {
+          isListening = false;
+          micBtn.classList.remove('recording');
+        };
+      }
+
+      if (isListening) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    }
+
+    async function askGemini(userPrompt) {
+      const transcriptBox = document.getElementById('transcriptBox');
+      const orb = document.getElementById('orb');
+      transcriptBox.innerText = `${activePersona.name} is thinking...`;
+
+      try {
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_KEY}`
+          },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: activePersona.prompt }]
+            },
+            contents: [{
+              parts: [{ text: userPrompt }]
+            }]
+          })
+        });
+
+        const data = await response.json();
+        const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Machi, response decode aagala, marubadi sollunga!";
+        
+        transcriptBox.innerText = `${activePersona.name}: ${aiReply}`;
+        speakReply(aiReply);
+
+      } catch (err) {
+        transcriptBox.innerText = "Error: " + err.message;
+      }
+    }
+
+    function speakReply(text) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-IN';
+      utterance.rate = activePersona.voice === 'energetic' ? 1.15 : 0.95;
+
+      const orb = document.getElementById('orb');
+      utterance.onstart = () => orb.classList.add('talking');
+      utterance.onend = () => orb.classList.remove('talking');
+      utterance.onerror = () => orb.classList.remove('talking');
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Init
+    renderPersonas();
+  </script>
 </body>
 </html>
